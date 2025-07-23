@@ -29,6 +29,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THINK PLUS BD - Premium Digital Products</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <style>
         /* --- START OF FILE style.css --- */
 
@@ -398,10 +399,11 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             display: none; /* Chrome, Safari, and Opera */
         }
         .category {
-            flex: 0 0 calc(100% / 3 - 1rem);
+            width: 100px;
+            height: 100px;
             background-color: white;
             border-radius: 16px;
-            padding: 1.25rem 1rem;
+            padding: 1rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -1327,9 +1329,13 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             <div class="container">
                  <h2 class="category-section-title">Product Categories</h2>
             </div>
-            <section class="categories container" id="categories-container">
-                <!-- Categories will be loaded here dynamically -->
-            </section>
+            <div class="swiper-container">
+                <div class="swiper-wrapper" id="categories-container">
+                    <!-- Categories will be loaded here dynamically -->
+                </div>
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+            </div>
 
             <section class="product-listings container"></section>
 
@@ -2457,41 +2463,21 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         }
 
         function setupCategoryAnimation() {
-            const categoriesContainer = document.getElementById('categories-container');
-            if (!categoriesContainer) return;
-
-            const handleScroll = () => {
-                const containerRect = categoriesContainer.getBoundingClientRect();
-                const containerCenter = containerRect.left + containerRect.width / 2;
-
-                let minDistance = Infinity;
-                let activeCategory = null;
-
-                const categories = categoriesContainer.querySelectorAll('.category');
-                categories.forEach(category => {
-                    const categoryRect = category.getBoundingClientRect();
-                    const categoryCenter = categoryRect.left + categoryRect.width / 2;
-                    const distance = Math.abs(containerCenter - categoryCenter);
-
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        activeCategory = category;
-                    }
-                });
-
-                categories.forEach(category => {
-                    if (category === activeCategory) {
-                        category.classList.add('active');
-                    } else {
-                        category.classList.remove('active');
-                    }
-                });
-            };
-
-            categoriesContainer.addEventListener('scroll', handleScroll, { passive: true });
-
-            // Initial check
-            handleScroll();
+            var swiper = new Swiper('.swiper-container', {
+                slidesPerView: 3,
+                spaceBetween: 10,
+                loop: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                breakpoints: {
+                    769: {
+                        slidesPerView: 4,
+                        spaceBetween: 20,
+                    },
+                }
+            });
         }
 
         function handleHashChange(isInitialLoad = false) {
@@ -2531,5 +2517,6 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         });
         // --- END OF FILE script.js ---
     </script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 </body>
 </html>
