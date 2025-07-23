@@ -390,26 +390,72 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .banner-image-container .image-placeholder-text { font-size: 1.4em; font-weight: 600; color: #a0a0a0; }
 
         .category-section-title { font-size: 1.75rem; font-weight: 700; color: var(--text-color); text-align: center; margin-top: 1rem; margin-bottom: 1.5rem; }
-        .categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding-bottom: 1.5rem; }
-        .category { background-color: white; border-radius: 16px; padding: 1.25rem 1rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; border: 1px solid #e9e9e9; aspect-ratio: 1/1; }
-        .category:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); border-color: var(--primary-color); }
-        .category-icon-wrapper { background-color: var(--primary-color); width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; transition: transform 0.2s ease; }
-        .category:hover .category-icon-wrapper { transform: scale(1.05); }
-        .category i.category-icon-fa { font-size: 1.8rem; color: white; display: block; line-height: 1; }
+        .categories {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .categories::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, and Opera */
+        }
+        .category {
+            flex: 0 0 calc(100% / 3 - 1rem);
+            background-color: white;
+            border-radius: 16px;
+            padding: 1.25rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e9e9e9;
+            aspect-ratio: 1/1;
+            scroll-snap-align: center;
+        }
+        .category.active {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 8px 20px rgba(143,135,241,0.3);
+            border-color: var(--primary-color);
+        }
+        .category:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        .category-icon-wrapper {
+            background-color: var(--primary-color);
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: transform 0.2s ease;
+        }
+        .category:hover .category-icon-wrapper {
+            transform: scale(1.05);
+        }
+        .category i.category-icon-fa {
+            font-size: 1.8rem;
+            color: white;
+            display: block;
+            line-height: 1;
+        }
         @media (max-width: 768px) {
-            .categories {
-                grid-template-columns: repeat(2, 1fr);
+            .category {
+                flex: 0 0 calc(100% / 3 - 1rem);
             }
         }
         @media (min-width: 769px) {
-            .categories.container {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-            .categories.container::-webkit-scrollbar {
-                display: none;
+            .category {
+                flex: 0 0 calc(100% / 4 - 1rem);
             }
         }
         .category-name { font-size: 1.1rem; font-weight: 600; color: var(--text-color); line-height: 1.3; margin-bottom: 0.35rem; }
@@ -1941,6 +1987,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             if (domElements.checkoutForm) { domElements.checkoutForm.addEventListener('submit', (event) => { event.preventDefault(); placeOrder(); }); }
             setupEnglishCheckoutForm();
             setupImageLoading();
+            setupCategoryAnimation();
         }
 
         function showToast(message, type = 'info', duration = 3000) { const toastElement = domElements.toast; if (!toastElement) return; if (toastElement.timerId) { clearTimeout(toastElement.timerId); } toastElement.textContent = message; toastElement.className = 'toast show'; if (type === 'success') toastElement.classList.add('success'); else if (type === 'error') toastElement.classList.add('error'); else if (type === 'error critical') toastElement.classList.add('error', 'critical'); else if (type === 'info') toastElement.classList.add('info'); toastElement.offsetHeight; toastElement.timerId = setTimeout(() => { toastElement.className = 'toast'; toastElement.timerId = null; }, duration); }
@@ -2405,6 +2452,44 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             customOptions.forEach(option => { option.addEventListener('click', function() { const value = this.dataset.value; const instructionType = this.dataset.instructionType; const textNode = Array.from(this.childNodes).find(node => node.nodeType === Node.TEXT_NODE); const displayText = textNode ? textNode.textContent.trim() : this.textContent.trim(); const radioButton = document.getElementById(`${value}_radio`); if (radioButton) radioButton.checked = true; selectedTextElement.textContent = displayText; selectedTextElement.classList.add('selected'); selectWrapper.classList.remove('open'); customOptions.forEach(o => o.classList.remove('selected-option-highlight')); this.classList.add('selected-option-highlight'); if (recipientNumberDisplay) { const numberSpan = recipientNumberDisplay.querySelector('#payment-number-text'); if(numberSpan) numberSpan.textContent = recipientNumber; } const allInstructions = getPaymentInstructions(); const selectedInstructionData = allInstructions[instructionType]; if (selectedInstructionData && paymentInstructionsDiv) { paymentInstructionsDiv.innerHTML = createInstructionListHTML(selectedInstructionData.title, selectedInstructionData.steps); } else if (paymentInstructionsDiv) { paymentInstructionsDiv.innerHTML = "<p>Select payment method for instructions.</p>"; } if (paymentDetailsArea) paymentDetailsArea.style.display = 'block'; }); });
             document.addEventListener('click', (e) => { if (!selectWrapper.contains(e.target)) { selectWrapper.classList.remove('open'); } });
             const copyButton = document.getElementById('copy-payment-number'); if (copyButton) { copyButton.addEventListener('click', function() { const numberTextElement = document.getElementById('payment-number-text'); if (numberTextElement) { const numberToCopy = numberTextElement.textContent; navigator.clipboard.writeText(numberToCopy).then(() => { showToast('Number copied!', 'success'); }, () => { showToast('Copy failed.', 'error'); }); } }); }
+        }
+
+        function setupCategoryAnimation() {
+            const categoriesContainer = document.getElementById('categories-container');
+            if (!categoriesContainer) return;
+
+            const handleScroll = () => {
+                const containerRect = categoriesContainer.getBoundingClientRect();
+                const containerCenter = containerRect.left + containerRect.width / 2;
+
+                let minDistance = Infinity;
+                let activeCategory = null;
+
+                const categories = categoriesContainer.querySelectorAll('.category');
+                categories.forEach(category => {
+                    const categoryRect = category.getBoundingClientRect();
+                    const categoryCenter = categoryRect.left + categoryRect.width / 2;
+                    const distance = Math.abs(containerCenter - categoryCenter);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        activeCategory = category;
+                    }
+                });
+
+                categories.forEach(category => {
+                    if (category === activeCategory) {
+                        category.classList.add('active');
+                    } else {
+                        category.classList.remove('active');
+                    }
+                });
+            };
+
+            categoriesContainer.addEventListener('scroll', handleScroll, { passive: true });
+
+            // Initial check
+            handleScroll();
         }
 
         function handleHashChange(isInitialLoad = false) {
