@@ -29,7 +29,6 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THINK PLUS BD - Premium Digital Products</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <style>
         /* --- START OF FILE style.css --- */
 
@@ -394,6 +393,10 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .categories {
             display: grid;
             gap: 1rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
         .categories::-webkit-scrollbar {
             display: none; /* Chrome, Safari, and Opera */
@@ -444,12 +447,14 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         }
         @media (max-width: 768px) {
             .categories {
-                grid-template-columns: repeat(3, 1fr);
+                grid-auto-flow: column;
+                grid-auto-columns: calc((100% / 3) - 0.75rem);
             }
         }
         @media (min-width: 769px) {
             .categories {
-                grid-template-columns: repeat(4, 1fr);
+                grid-auto-flow: column;
+                grid-auto-columns: calc(25% - 0.75rem);
             }
         }
         .category-name { font-size: 1.1rem; font-weight: 600; color: var(--text-color); line-height: 1.3; margin-bottom: 0.35rem; }
@@ -1329,13 +1334,9 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             <div class="container">
                  <h2 class="category-section-title">Product Categories</h2>
             </div>
-            <div class="swiper-container">
-                <div class="swiper-wrapper" id="categories-container">
-                    <!-- Categories will be loaded here dynamically -->
-                </div>
-                <!-- Add Pagination -->
-                <div class="swiper-pagination"></div>
-            </div>
+            <section class="categories container" id="categories-container">
+                <!-- Categories will be loaded here dynamically -->
+            </section>
 
             <section class="product-listings container"></section>
 
@@ -2463,21 +2464,41 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         }
 
         function setupCategoryAnimation() {
-            var swiper = new Swiper('.swiper-container', {
-                slidesPerView: 3,
-                spaceBetween: 10,
-                loop: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                breakpoints: {
-                    769: {
-                        slidesPerView: 4,
-                        spaceBetween: 20,
-                    },
-                }
-            });
+            const categoriesContainer = document.getElementById('categories-container');
+            if (!categoriesContainer) return;
+
+            const handleScroll = () => {
+                const containerRect = categoriesContainer.getBoundingClientRect();
+                const containerCenter = containerRect.left + containerRect.width / 2;
+
+                let minDistance = Infinity;
+                let activeCategory = null;
+
+                const categories = categoriesContainer.querySelectorAll('.category');
+                categories.forEach(category => {
+                    const categoryRect = category.getBoundingClientRect();
+                    const categoryCenter = categoryRect.left + categoryRect.width / 2;
+                    const distance = Math.abs(containerCenter - categoryCenter);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        activeCategory = category;
+                    }
+                });
+
+                categories.forEach(category => {
+                    if (category === activeCategory) {
+                        category.classList.add('active');
+                    } else {
+                        category.classList.remove('active');
+                    }
+                });
+            };
+
+            categoriesContainer.addEventListener('scroll', handleScroll, { passive: true });
+
+            // Initial check
+            handleScroll();
         }
 
         function handleHashChange(isInitialLoad = false) {
@@ -2517,6 +2538,5 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         });
         // --- END OF FILE script.js ---
     </script>
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 </body>
 </html>
